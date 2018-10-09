@@ -1,43 +1,64 @@
 <?php
-    // phpinfo();
-    // die();
+  require 'vendor/autoload.php';
+  use Intervention\Image\ImageManager;
+
+  // phpinfo();
+  // die();
+  $errors = array();
+  if (isset($_FILES["image"])) {
+    $fileSize = $_FILES["image"]["size"];
+    $fileTmp = $_FILES["image"]["tmp_name"];
+    $fileType = $_FILES["image"]["type"];
     $errors = array();
-    if (isset($_FILES["image"])) {
-      $fileSize = $_FILES["image"]["size"];
-      $fileTmp = $_FILES["image"]["tmp_name"];
-      $fileType = $_FILES["image"]["type"];
-      $errors = array();
 
-      if ($fileSize > 5000000) { // if the file size is larger than 5mb
-        array_push($errors, "The file is to large, must be under 5MB");
-      }
+    if ($fileSize > 5000000) { // if the file size is larger than 5mb
+      array_push($errors, "The file is to large, must be under 5MB");
+    }
 
-      $validExtensions = array("jpeg", "jpg", "png");
-      $fileNameArray = explode(".", $_FILES["image"]["name"]);
+    $validExtensions = array("jpeg", "jpg", "png");
+    $fileNameArray = explode(".", $_FILES["image"]["name"]);
 
-      $fileExt = strtolower(end($fileNameArray));
+    $fileExt = strtolower(end($fileNameArray));
 
-      if (in_array($fileExt, $validExtensions) === false) {
-        array_push($errors, 'File type not allowed, can only be a jpg or png');
-      }
+    if (in_array($fileExt, $validExtensions) === false) {
+      array_push($errors, 'File type not allowed, can only be a jpg or png');
+    }
 
+    if (empty($errors)) {
       $destination = "images/uploads";
       if (! is_dir($destination)) {
         mkdir("images/uploads/", 0777, true);
       }
 
       $newFileName = uniqid() .".". $fileExt;
-      move_uploaded_file($fileTmp, $destination."/".$newFileName);
 
-    } else {
-      array_push($errors, "File not found, please upload an image");
+      $manager = new ImageManager();
+      $mainImage = $manager->make($fileTmp);
+      $mainImage->save($destination."/".$newFileName, 100);
+
+      $thumbDestination = "images/uploads/thumbnails";
+      if (! is_dir($thumbDestination)) {
+        mkdir("images/uploads/thumbnails/", 0777, true);
+      }
+
+      $thumbnailImage = $manager->make($fileTmp);
+      $thumbnailImage->resize(300, null, function($constraint) {
+        $constraint->aspectRatio();
+        $constraint->upsize();
+      });
+      $thumbnailImage->save($thumbDestination."/".$newFileName, 100);
+
     }
 
-    $page = "image";
-    $desc = "This is the description of the Contact Page";
+  } else {
+    array_push($errors, "File not found, please upload an image");
+  }
 
-    require("templates/header.php");
- ?>
+  $page = "image";
+  $desc = "This is the description of the Contact Page";
+
+  require("templates/header.php");
+?>
 
 <main role="main" class="inner cover">
     <h1 class="cover-heading">Image Upload Page</h1>
