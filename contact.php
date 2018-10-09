@@ -1,10 +1,5 @@
 <?php
     if($_POST){
-        // var_dump($_POST);
-        // $name = $_POST["name"];
-        // $email = $_POST["email"];
-        // $message = $_POST["message"];
-        // $subscribe = $_POST["subscribe"];
 
         extract($_POST);
 
@@ -38,8 +33,8 @@
             $emailMessage = 'You have recieved an email<br>Here is the message<br>';
             $emailMessage += $message;
             $headers = array(
-                'From' => 'richard.hpa@acgedu.com',
-                'Reply-To' => 'richard.hpa@acgedu.com',
+                'From' => 'cathey191@hotmail.com',
+                'Reply-To' => 'cathey191@hotmail.com',
                 'X-Mailer' => 'PHP/'.phpversion()
             );
             mail($to,$subject,$emailMessage,$headers);
@@ -48,17 +43,9 @@
 
     }
 
-
-
-
-
-
-
-
     $page = "contact";
     $desc = "This is the description of the Contact Page";
 
-    // include("templates/header.php");
     require("templates/header.php");
  ?>
 
